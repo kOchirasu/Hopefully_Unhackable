@@ -1,5 +1,14 @@
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head th:replace="fragments/header :: metadata">Metadata Error!</head>
-    <div th:replace="fragments/header :: header">Header Error!</div>
-    <body>This is a body</body>
+    <body>
+        <div class="wrapper">
+            <div th:replace="fragments/header :: header">Header Error!</div>
+            <div class="content">
+                This is a body
+                First<br/>a<br/>a<br/>a<br/>a<br/>a<br/>a<br/>a<br/>a<br/>a<br/>a<br/>a<br/>a<br/>a<br/>a<br/>a<br/>a<br/>a<br/>Last
+            </div>
+            <div th:replace="fragments/footer :: footer">Footer Error!</div>
+        </div>
+    </body>
 </html>
