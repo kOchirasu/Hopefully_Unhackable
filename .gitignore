@@ -15,7 +15,7 @@ hs_err_pid*
 *.iml
 
 # Build files
-*/build/*
+build/*
 
 ## Directory-based project format:
 .idea/

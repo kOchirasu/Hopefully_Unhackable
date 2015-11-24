@@ -1,5 +1,6 @@
 package edu.ucsb.hopefully_unhackable.controllers;
 
+import edu.ucsb.hopefully_unhackable.processor.UploadProcessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,6 +21,11 @@ public class QueryController
         return "index";
     }
 
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    public String search() {
+        return "result";
+    }
+
     @RequestMapping(value = "/upload", method = RequestMethod.GET)
     public String upload() {
         return "upload";
@@ -31,6 +37,7 @@ public class QueryController
         if (!file.isEmpty()) {
             String name = file.getOriginalFilename();
             try {
+                UploadProcessor.uploadFile(file);
                 byte[] bytes = file.getBytes();
                 BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(new File(name)));
                 stream.write(bytes);
