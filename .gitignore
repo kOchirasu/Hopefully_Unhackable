@@ -1,4 +1,7 @@
 *.class
+.classpath
+.project
+.settings/
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -61,3 +64,4 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+/bin/
