@@ -14,6 +14,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 
 import com.mongodb.MongoClient;
 
+import edu.ucsb.hopefully_unhackable.controllers.InvertedIndex;
+import edu.ucsb.hopefully_unhackable.controllers.InvertedIndexRepository;
 import edu.ucsb.hopefully_unhackable.processor.FileInfo;
 
 @SpringBootApplication
@@ -28,9 +30,11 @@ public class Application implements CommandLineRunner {
 
 	@Override
 	public void run(String...args) throws Exception {
-	
-		repository.deleteAll(); 
 		
+		store("dog", "blah7");
+		System.out.println(getList(repository, "dog"));
+		//repository.deleteAll(); 
+		/*
 		BasicDBList file_list = new BasicDBList();
 		BasicDBList file_list2 = new BasicDBList();
 		
@@ -43,7 +47,7 @@ public class Application implements CommandLineRunner {
 		
 		repository.save(new InvertedIndex("dog", file_list));
 		repository.save(new InvertedIndex("cat", file_list2));
-
+		
 		
 		// fetch all tuples
 		System.out.println("Files found with findAll():");
@@ -59,12 +63,12 @@ public class Application implements CommandLineRunner {
 		if(repository.exists("dog") == true){System.out.println("EXISTS");}
 		store(repository, "fish", "blah5");
 		store(repository, "dog", "blah5");
-	
+		*/
+		
 	
 	}
 	
-	private static void store(InvertedIndexRepository repository,
-			String keyword, String file_id){
+	public void store(String keyword, String file_id){
 		
 		//check if keyword is contained in database 
 		//if not keyword not contained, make new list with file_id
@@ -88,4 +92,24 @@ public class Application implements CommandLineRunner {
 	
 	
 	}
+	
+	//get list of all files that match keyword
+	private static String getList(InvertedIndexRepository rep, String keyword){
+		if(rep.exists(keyword) == false){
+			return null;
+		}
+		else if(rep.exists(keyword) == true){
+			InvertedIndex tuple = rep.findByKeyword(keyword);
+			BasicDBList file_list = tuple.getList();
+			return file_list.toString();
+		}
+		else return null;
+	}
+	
+	//check if keyword contains a file
+	private static boolean isFileContained(InvertedIndexRepository rep, String file_id){
+		
+		return false;
+	}
+	
 }

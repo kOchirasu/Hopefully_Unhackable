@@ -1,4 +1,4 @@
-package mongodb;
+package edu.ucsb.hopefully_unhackable.controllers;
 import org.springframework.data.annotation.Id;
 import org.bson.types.ObjectId;
 import java.util.List;
@@ -7,16 +7,12 @@ import com.mongodb.BasicDBList;
 
 public class InvertedIndex {
 	
-	
-
 	@Id
 	private String keyword;
 	
 	private String file_id;
-	
 	private BasicDBList file_list;
-	
-	
+
 	public InvertedIndex(){}
 	
 	public InvertedIndex(String keyword, BasicDBList file_list) {
