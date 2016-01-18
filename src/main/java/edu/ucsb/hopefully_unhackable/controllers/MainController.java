@@ -1,24 +1,22 @@
 package edu.ucsb.hopefully_unhackable.controllers;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.BasicDBList;
+import edu.ucsb.hopefully_unhackable.mongodb.InvertedIndex;
+import edu.ucsb.hopefully_unhackable.mongodb.InvertedIndexRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.BasicDBList;
-
-import edu.ucsb.hopefully_unhackable.mongodb.InvertedIndex;
-import edu.ucsb.hopefully_unhackable.mongodb.InvertedIndexRepository;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 @RestController
 public class MainController {
@@ -46,12 +44,19 @@ public class MainController {
 			return 500; //HTTP: Internal Server Error
 		}
 	}
-	
+
+    // TODO: search with more than just the first keyword
 	@RequestMapping(value = "/searchfile", method = RequestMethod.GET)
-	public String searchFile(@RequestParam(value="query") String query) {
-		String[] keywords = query.split("+");
-		System.out.println(Arrays.toString(keywords));
-		return retrieve(keywords[0]).toString();
+	public String searchFile(@RequestBody String query) {
+		try {
+			List<String> obj = mapper.readValue(query, new TypeReference<List<String>>(){});
+			// Store entries into database
+			return retrieve(obj.get(0)).toString(); //return json of result
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "error"; //HTTP: Internal Server Error
+		}
+
 		/*Set<String> results = new HashSet<>();
 		for (String w : keywords) {
 			results.add(getList(w));
