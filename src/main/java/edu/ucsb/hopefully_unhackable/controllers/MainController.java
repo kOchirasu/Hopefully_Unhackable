@@ -6,16 +6,10 @@ import com.mongodb.BasicDBList;
 import edu.ucsb.hopefully_unhackable.mongodb.InvertedIndex;
 import edu.ucsb.hopefully_unhackable.mongodb.InvertedIndexRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 @RestController
@@ -47,15 +41,14 @@ public class MainController {
 
     // TODO: search with more than just the first keyword
 	@RequestMapping(value = "/searchfile", method = RequestMethod.GET)
-	public String searchFile(@RequestBody String query) {
-		try {
-			List<String> obj = mapper.readValue(query, new TypeReference<List<String>>(){});
-			// Store entries into database
-			return retrieve(obj.get(0)).toString(); //return json of result
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "error"; //HTTP: Internal Server Error
-		}
+    public String searchFile(@RequestParam(value="query") String query) {
+        String[] keywords = query.split(" ");
+        // For testing purposes
+        for (String w : keywords) {
+            System.out.println(retrieve(w));
+        }
+        System.out.println(Arrays.toString(keywords));
+        return retrieve(keywords[0]).toString();
 
 		/*Set<String> results = new HashSet<>();
 		for (String w : keywords) {
@@ -104,6 +97,9 @@ public class MainController {
 		testMap.put("key1", "value1");
 		testMap.put("key2", "value2");
 		testMap.put("key3", "value3");
+
+        List<String> testList = new ArrayList<>();
+        testList.add("testkey");
 		
 		try {
 			System.out.println("Serializing Map...");
@@ -113,6 +109,14 @@ public class MainController {
 			System.out.println("Deserializing Map...");
 			Map<String, String> obj = mapper.readValue(jsonOut, new TypeReference<Map<String, String>>(){});
 			System.out.println(obj);
+
+            System.out.println("Serializing List...");
+            jsonOut = mapper.writeValueAsString(testList);
+            System.out.println(jsonOut);
+            System.out.println();
+            System.out.println("Deserializing List...");
+            List<String> obj2 = mapper.readValue(jsonOut, new TypeReference<List<String>>(){});
+            System.out.println(obj2);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
