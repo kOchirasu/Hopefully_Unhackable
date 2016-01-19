@@ -1,5 +1,6 @@
 package edu.ucsb.hopefully_unhackable.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBList;
@@ -42,13 +43,24 @@ public class MainController {
     // TODO: search with more than just the first keyword
 	@RequestMapping(value = "/searchfile", method = RequestMethod.GET)
     public String searchFile(@RequestParam(value="query") String query) {
+		query = query.trim();
+		if (query.isEmpty()) {
+			return "[]"; // empty list
+		}
         String[] keywords = query.split(" ");
+        if (keywords.length == 0) { // is this possible
+        	return "[]"; // empty list
+        }
         // For testing purposes
         for (String w : keywords) {
             System.out.println(retrieve(w));
         }
         System.out.println(Arrays.toString(keywords));
-        return retrieve(keywords[0]).toString();
+        BasicDBList result = retrieve(keywords[0]);
+        if (result == null) {
+        	return "[]";
+        }
+        return result.toString();
 
 		/*Set<String> results = new HashSet<>();
 		for (String w : keywords) {
