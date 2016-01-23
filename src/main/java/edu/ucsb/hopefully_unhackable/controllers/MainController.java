@@ -52,26 +52,26 @@ public class MainController {
         	return "[]"; // empty list
         }
         // For testing purposes
+        List<Set<Object>> resultSets = new ArrayList<>();
         for (String w : keywords) {
-            System.out.println(retrieve(w));
+        	BasicDBList res = retrieve(w);
+        	if (res != null) {
+        		resultSets.add(new HashSet<>(res));
+        	}
         }
-        System.out.println(Arrays.toString(keywords));
-        BasicDBList result = retrieve(keywords[0]);
-        if (result == null) {
+        if (resultSets.size() < 1) {
         	return "[]";
         }
-        return result.toString();
-
-		/*Set<String> results = new HashSet<>();
-		for (String w : keywords) {
-			results.add(getList(w));
+        
+        System.out.println(Arrays.toString(keywords));
+        Set<Object> result = intersect(resultSets);
+        try {
+        	String json = mapper.writeValueAsString(result);
+        	System.out.println(json);
+			return json;
+		} catch (JsonProcessingException e) {
+			return "[]";
 		}
-		try {
-			return mapper.writeValueAsString(results);
-		} catch (JsonProcessingException ex) {
-			ex.printStackTrace();
-			return "Error!";
-		}*/
 	}
 	
 	private void store(Map<String, String> edb) {
@@ -105,7 +105,7 @@ public class MainController {
 	}
 	
 	public static void main(String[] args) {
-		Map<String, String> testMap = new HashMap<>();
+		/*Map<String, String> testMap = new HashMap<>();
 		testMap.put("key1", "value1");
 		testMap.put("key2", "value2");
 		testMap.put("key3", "value3");
@@ -131,7 +131,42 @@ public class MainController {
             System.out.println(obj2);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}*/
+		
+		Set<Object> set1 = new HashSet<>(Arrays.asList(new Object[]{"1", "2", "3", "4", "5"}));
+		Set<Object> set2 = new HashSet<>(Arrays.asList(new Object[]{"1", "6", "7", "8", "5"}));
+		Set<Object> set3 = new HashSet<>(Arrays.asList(new Object[]{"1", "1", "1", "5", "5", "7"}));
+		Set<Object> set4 = new HashSet<>(Arrays.asList(new Object[]{"2", "7", "12", "5", "5", "7"}));
+		
+		List<Set<Object>> list = new ArrayList<>();
+		list.add(set1);
+		list.add(set2);
+		list.add(set3);
+		list.add(set4);
+		
+		System.out.println(intersect(list));
+	}
+	
+	public static Set<Object> intersect(List<Set<Object>> sets) {
+		if (sets.size() < 1) {
+			return null;
 		}
+		// Sort sets by size (ascending)
+		Collections.sort(sets, new Comparator<Set<Object>>() {
+			@Override
+			public int compare(Set<Object> o1, Set<Object> o2) {
+				return Integer.compare(o1.size(), o2.size());
+			}
+		});
+		
+		Set<Object> newSet = sets.get(0);
+		for (Set<Object> set : sets) {
+			if (set == sets.get(0)) continue;
+			newSet.retainAll(set);
+			// System.out.println(set.size());
+		}
+		
+		return newSet;
 	}
 	
 	//check if keyword contains a file
