@@ -10,7 +10,7 @@ public class InvertedIndex {
 	private String keyword;
 	
 	private BasicDBList file_list;
-
+	
 	public InvertedIndex() { }
 	
 	public InvertedIndex(String keyword, BasicDBList file_list) {
@@ -21,6 +21,8 @@ public class InvertedIndex {
 	public BasicDBList getList() {
 		return this.file_list;
 	}
+	
+	
 	
 	@Override
 	public String toString() {

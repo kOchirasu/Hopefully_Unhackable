@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBList;
 import edu.ucsb.hopefully_unhackable.mongodb.InvertedIndex;
 import edu.ucsb.hopefully_unhackable.mongodb.InvertedIndexRepository;
+import edu.ucsb.hopefully_unhackable.mongodb.StringPair;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +30,8 @@ public class MainController {
 	@RequestMapping(value = "/indexfile", method = RequestMethod.POST)
 	public int indexFile(@RequestBody String edb) {
 		try {
-			Map<String, String> obj = mapper.readValue(edb, new TypeReference<Map<String, String>>(){});
+			System.out.println(edb);
+			Map<String, StringPair> obj = mapper.readValue(edb, new TypeReference<Map<String, StringPair>>(){});
 			System.out.println(obj);
 			System.out.println("Repository is " + repository);
 			store(obj);
@@ -74,8 +77,8 @@ public class MainController {
 		}
 	}
 	
-	private void store(Map<String, String> edb) {
-		for (Entry<String, String> entry : edb.entrySet()) {
+	private void store(Map<String, StringPair> edb) {
+		for (Entry<String, StringPair> entry : edb.entrySet()) {
 			//check if keyword is contained in database 
 			//if not keyword not contained, make new list with file_id
 			if (!repository.exists(entry.getKey())) {
@@ -86,8 +89,8 @@ public class MainController {
 				//if keyword contained, update existing list
 				InvertedIndex tuple = repository.findByKeyword(entry.getKey());
 				BasicDBList new_list = tuple.getList();
-				
-				if (!new_list.contains(entry.getValue())) {
+					
+				if (!new_list.contains(entry.getValue().getFileId())) {
 					new_list.add(entry.getValue());
 					repository.save(new InvertedIndex(entry.getKey(), new_list));
 				}
@@ -105,10 +108,25 @@ public class MainController {
 	}
 	
 	public static void main(String[] args) {
-		/*Map<String, String> testMap = new HashMap<>();
-		testMap.put("key1", "value1");
-		testMap.put("key2", "value2");
-		testMap.put("key3", "value3");
+		Map<String, StringPair> testMap = new HashMap<>();
+		//BasicDBList value1 = new BasicDBList();
+		//BasicDBList value2 = new BasicDBList();
+		//BasicDBList value3 = new BasicDBList();
+		
+		//value1.add("id1");
+		//value1.add("file1");
+		StringPair value1 = new StringPair("id1","file1");
+		StringPair value2 = new StringPair("id2","file2");
+		StringPair value3 = new StringPair("id3","file3");
+		
+	
+		
+		
+		testMap.put("key1", value1);
+		testMap.put("key2", value2);
+		testMap.put("key3", value3);
+
+        /*
 
         List<String> testList = new ArrayList<>();
         testList.add("testkey");
@@ -119,7 +137,7 @@ public class MainController {
 			System.out.println(jsonOut);
 			System.out.println();
 			System.out.println("Deserializing Map...");
-			Map<String, String> obj = mapper.readValue(jsonOut, new TypeReference<Map<String, String>>(){});
+			Map<String, StringPair> obj = mapper.readValue(jsonOut, new TypeReference<Map<String, StringPair>>(){});
 			System.out.println(obj);
 
             System.out.println("Serializing List...");
