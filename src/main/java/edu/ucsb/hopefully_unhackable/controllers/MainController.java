@@ -54,22 +54,16 @@ public class MainController {
         if (keywords.length == 0) { // is this possible
         	return "[]"; // empty list
         }
-        // For testing purposes
-        List<Set<Object>> resultSets = new ArrayList<>();
-        for (String w : keywords) {
-        	BasicDBList res = retrieve(w);
-        	if (res != null) {
-        		resultSets.add(new HashSet<>(res));
-        	}
-        }
-        if (resultSets.size() < 1) {
+        
+        BasicDBList res = retrieve(keywords[0]);
+        if (res == null) {
         	return "[]";
         }
         
+        // For testing purposes
         System.out.println(Arrays.toString(keywords));
-        Set<Object> result = intersect(resultSets);
         try {
-        	String json = mapper.writeValueAsString(result);
+        	String json = mapper.writeValueAsString(res);
         	System.out.println(json);
 			return json;
 		} catch (JsonProcessingException e) {
@@ -89,11 +83,8 @@ public class MainController {
 				//if keyword contained, update existing list
 				InvertedIndex tuple = repository.findByKeyword(entry.getKey());
 				BasicDBList new_list = tuple.getList();
-					
-				if (!new_list.contains(entry.getValue().getFileId())) {
-					new_list.add(entry.getValue());
-					repository.save(new InvertedIndex(entry.getKey(), new_list));
-				}
+				new_list.add(entry.getValue());
+				repository.save(new InvertedIndex(entry.getKey(), new_list));
 			}
 		}
 	}
@@ -119,12 +110,22 @@ public class MainController {
 		StringPair value2 = new StringPair("id2","file2");
 		StringPair value3 = new StringPair("id3","file3");
 		
-	
-		
-		
 		testMap.put("key1", value1);
 		testMap.put("key2", value2);
 		testMap.put("key3", value3);
+		
+		BasicDBList list = new BasicDBList();
+		list.add(value1);
+		list.add(value2);
+		list.add(value3);
+		
+		try {
+			String jsonOut = mapper.writeValueAsString(list);
+			System.out.println(jsonOut);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
         /*
 
@@ -150,79 +151,5 @@ public class MainController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}*/
-		
-		Set<Object> set1 = new HashSet<>(Arrays.asList(new Object[]{"1", "2", "3", "4", "5"}));
-		Set<Object> set2 = new HashSet<>(Arrays.asList(new Object[]{"1", "6", "7", "8", "5"}));
-		Set<Object> set3 = new HashSet<>(Arrays.asList(new Object[]{"1", "1", "1", "5", "5", "7"}));
-		Set<Object> set4 = new HashSet<>(Arrays.asList(new Object[]{"2", "7", "12", "5", "5", "7"}));
-		
-		List<Set<Object>> list = new ArrayList<>();
-		list.add(set1);
-		list.add(set2);
-		list.add(set3);
-		list.add(set4);
-		
-		System.out.println(intersect(list));
 	}
-	
-	public static Set<Object> intersect(List<Set<Object>> sets) {
-		if (sets.size() < 1) {
-			return null;
-		}
-		// Sort sets by size (ascending)
-		Collections.sort(sets, new Comparator<Set<Object>>() {
-			@Override
-			public int compare(Set<Object> o1, Set<Object> o2) {
-				return Integer.compare(o1.size(), o2.size());
-			}
-		});
-		
-		Set<Object> newSet = sets.get(0);
-		for (Set<Object> set : sets) {
-			if (set == sets.get(0)) continue;
-			newSet.retainAll(set);
-			// System.out.println(set.size());
-		}
-		
-		return newSet;
-	}
-	
-	//check if keyword contains a file
-	/*private static boolean isFileContained(InvertedIndexRepository rep, String file_id){
-		return false;
-	}*/
-	
-	/*store("dog", "blah7");
-	System.out.println(getList(repository, "dog"));
-	//repository.deleteAll(); 
-	
-	BasicDBList file_list = new BasicDBList();
-	BasicDBList file_list2 = new BasicDBList();
-	
-	file_list.add("blah1");
-	file_list.add("blah2");
-	file_list2.add("blah3");
-	file_list2.add("blah4");
-	
-	
-	
-	repository.save(new InvertedIndex("dog", file_list));
-	repository.save(new InvertedIndex("cat", file_list2));
-	
-	
-	// fetch all tuples
-	System.out.println("Files found with findAll():");
-	System.out.println("-------------------------------");
-	for (InvertedIndex invertedIndex : repository.findAll()) {
-		System.out.println(invertedIndex);
-	}
-	System.out.println();
-
-
-	
-
-	if(repository.exists("dog") == true){System.out.println("EXISTS");}
-	store(repository, "fish", "blah5");
-	store(repository, "dog", "blah5");
-	*/
 }
