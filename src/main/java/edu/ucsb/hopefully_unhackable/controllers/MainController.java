@@ -30,6 +30,7 @@ public class MainController {
 	@RequestMapping(value = "/indexfile", method = RequestMethod.POST)
 	public int indexFile(@RequestBody String edb) {
 		try {
+			System.out.println(edb);
 			Map<String, StringPair> obj = mapper.readValue(edb, new TypeReference<Map<String, StringPair>>(){});
 			System.out.println(obj);
 			System.out.println("Repository is " + repository);
@@ -88,8 +89,8 @@ public class MainController {
 				//if keyword contained, update existing list
 				InvertedIndex tuple = repository.findByKeyword(entry.getKey());
 				BasicDBList new_list = tuple.getList();
-				
-				if (!new_list.contains(entry.getValue())) {
+					
+				if (!new_list.contains(entry.getValue().getFileId())) {
 					new_list.add(entry.getValue());
 					repository.save(new InvertedIndex(entry.getKey(), new_list));
 				}
@@ -108,9 +109,17 @@ public class MainController {
 	
 	public static void main(String[] args) {
 		Map<String, StringPair> testMap = new HashMap<>();
+		//BasicDBList value1 = new BasicDBList();
+		//BasicDBList value2 = new BasicDBList();
+		//BasicDBList value3 = new BasicDBList();
+		
+		//value1.add("id1");
+		//value1.add("file1");
 		StringPair value1 = new StringPair("id1","file1");
 		StringPair value2 = new StringPair("id2","file2");
 		StringPair value3 = new StringPair("id3","file3");
+		
+	
 		
 		
 		testMap.put("key1", value1);
