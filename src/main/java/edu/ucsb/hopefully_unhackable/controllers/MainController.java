@@ -27,15 +27,30 @@ public class MainController {
 		return "pong";
 	}
 	
-	@RequestMapping(value = "/indexfile", method = RequestMethod.POST)
-	public int indexFile(@RequestBody String edb) {
+	@RequestMapping(value = "/indexfileold", method = RequestMethod.POST)
+	public int indexFileOld(@RequestBody String edb) {
 		try {
 			System.out.println(edb);
 			Map<String, StringPair> obj = mapper.readValue(edb, new TypeReference<Map<String, StringPair>>(){});
 			System.out.println(obj);
 			System.out.println("Repository is " + repository);
-			store(obj);
+			storeOld(obj);
 			// Store entries into database
+			return 200; //HTTP: OK
+		} catch (IOException e) {
+			e.printStackTrace();
+			return 500; //HTTP: Internal Server Error
+		}
+	}
+	
+	@RequestMapping(value = "/indexfile", method = RequestMethod.POST)
+	public int indexFile(@RequestBody String edb) {
+		try {
+			//System.out.println(edb);
+			Map<String, List<StringPair>> obj = mapper.readValue(edb, new TypeReference<Map<String, List<StringPair>>>(){});
+			//System.out.println(obj);
+			//System.out.println("Repository is " + repository);
+			store(obj); // Store entries into database
 			return 200; //HTTP: OK
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -61,7 +76,7 @@ public class MainController {
         }
         
         // For testing purposes
-        System.out.println(Arrays.toString(keywords));
+        //System.out.println(Arrays.toString(keywords));
         try {
         	String json = mapper.writeValueAsString(res);
         	System.out.println(json);
@@ -71,10 +86,10 @@ public class MainController {
 		}
 	}
 	
-	private void store(Map<String, StringPair> edb) {
+	private void storeOld(Map<String, StringPair> edb) {
 		for (Entry<String, StringPair> entry : edb.entrySet()) {
 			//check if keyword is contained in database 
-			//if not keyword not contained, make new list with file_id
+			//if keyword not contained, make new list with file_id
 			if (!repository.exists(entry.getKey())) {
 				BasicDBList file_list = new BasicDBList();
 				file_list.add(entry.getValue());
@@ -84,6 +99,24 @@ public class MainController {
 				InvertedIndex tuple = repository.findByKeyword(entry.getKey());
 				BasicDBList new_list = tuple.getList();
 				new_list.add(entry.getValue());
+				repository.save(new InvertedIndex(entry.getKey(), new_list));
+			}
+		}
+	}
+	
+	private void store(Map<String, List<StringPair>> edb) {
+		for (Entry<String, List<StringPair>> entry : edb.entrySet()) {
+			//check if keyword is contained in database 
+			//if keyword not contained, make new list with file_id
+			if (!repository.exists(entry.getKey())) {
+				BasicDBList file_list = new BasicDBList();
+				file_list.addAll(entry.getValue());
+				repository.save(new InvertedIndex(entry.getKey(), file_list));
+			} else if (repository.exists(entry.getKey())) {
+				//if keyword contained, update existing list
+				InvertedIndex tuple = repository.findByKeyword(entry.getKey());
+				BasicDBList new_list = tuple.getList();
+				new_list.addAll(entry.getValue());
 				repository.save(new InvertedIndex(entry.getKey(), new_list));
 			}
 		}
